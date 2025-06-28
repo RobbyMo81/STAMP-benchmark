@@ -1,0 +1,139 @@
+version: '3.8'
+
+services:
+  # Main benchmark runner with GPU support
+  benchmark-runner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: stamp-benchmark-runner
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+      - ./data:/app/data
+    environment:
+      - PYTHONPATH=/app
+      - NVIDIA_VISIBLE_DEVICES=all
+    runtime: nvidia
+    command: ["python3", "main.py", "--framework", "all", "--precision", "mixed", "--verbose"]
+    profiles:
+      - benchmark
+    
+  # Interactive benchmark runner for custom configurations
+  benchmark-interactive:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: stamp-benchmark-interactive
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    environment:
+      - PYTHONPATH=/app
+      - NVIDIA_VISIBLE_DEVICES=all
+    runtime: nvidia
+    stdin_open: true
+    tty: true
+    command: ["bash"]
+    profiles:
+      - interactive
+
+  # Streamlit dashboard for results visualization
+  streamlit-dashboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: stamp-dashboard
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONPATH=/app
+    command: ["streamlit", "run", "scripts/dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"]
+    profiles:
+      - dashboard
+      - full
+
+  # Jupyter Lab for interactive analysis
+  jupyter-lab:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: stamp-jupyter
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    ports:
+      - "8888:8888"
+    environment:
+      - PYTHONPATH=/app
+      - JUPYTER_ENABLE_LAB=yes
+      - NVIDIA_VISIBLE_DEVICES=all
+    runtime: nvidia
+    command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''"]
+    profiles:
+      - jupyter
+      - full
+
+  # Quick benchmark runner for specific frameworks
+  pytorch-benchmark:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: stamp-pytorch
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    environment:
+      - PYTHONPATH=/app
+      - NVIDIA_VISIBLE_DEVICES=all
+    runtime: nvidia
+    command: ["python3", "main.py", "--framework", "pytorch", "--precision", "mixed", "--verbose"]
+    profiles:
+      - pytorch
+
+  tensorflow-benchmark:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: stamp-tensorflow
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    environment:
+      - PYTHONPATH=/app
+      - NVIDIA_VISIBLE_DEVICES=all
+    runtime: nvidia
+    command: ["python3", "main.py", "--framework", "tensorflow", "--precision", "mixed", "--verbose"]
+    profiles:
+      - tensorflow
+
+  jax-benchmark:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: stamp-jax
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    environment:
+      - PYTHONPATH=/app
+      - NVIDIA_VISIBLE_DEVICES=all
+    runtime: nvidia
+    command: ["python3", "main.py", "--framework", "jax", "--precision", "bf16", "--verbose"]
+    profiles:
+      - jax
+
+# Named volumes for persistent data
+volumes:
+  logs:
+    driver: local
+  data:
+    driver: local
+
+# Networks for service communication
+networks:
+  default:
+    driver: bridge

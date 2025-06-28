@@ -1,0 +1,18 @@
+# Always use LF for shell scripts (best for Linux/macOS)
+*.sh text eol=lf
+
+# Use CRLF for Windows-native files like PowerShell scripts
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf
+
+# Use LF for Python scripts (standard practice)
+*.py text eol=lf
+
+# Use LF for YAML/JSON config files
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+
+# Ensure Markdown and plain text files use LF
+*.md text eol=lf
+*.txt text eol=lf

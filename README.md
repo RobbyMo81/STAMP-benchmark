@@ -30,3 +30,12 @@ STAMP/
 ├── docker-compose.yml
 ├── requirements.txt
 └── README.md
+---
+
+## 🛡️ License
+
+STAMP is released under a [Modified MIT License](./LICENSE), which permits use, modification, and distribution for **non-commercial purposes**.
+
+If you'd like to discuss commercial licensing, collaboration, or inclusion in enterprise tools, feel free to reach out via [GitHub Issues](https://github.com/your-org/STAMP-benchmark/issues) or open a discussion thread.
+
+---
